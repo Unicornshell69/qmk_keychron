@@ -1,5 +1,5 @@
 #pragma once
-//#include "quantum.h"
+#include "quantum.h"
 
 void auto_click_start(uint16_t keycode);
 

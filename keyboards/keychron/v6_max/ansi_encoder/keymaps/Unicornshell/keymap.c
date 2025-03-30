@@ -16,7 +16,7 @@
 
 #include QMK_KEYBOARD_H
 #include "keychron_common.h"
-#include "users/autoclicker_behaviour/autoclick.h"
+#include "features/autoclick_behaviour/autoclick.h"
 
 
 enum {

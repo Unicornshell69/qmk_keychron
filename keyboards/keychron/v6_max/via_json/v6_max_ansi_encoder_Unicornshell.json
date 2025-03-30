@@ -83,7 +83,8 @@
       {"name": "2.4G", "title": "2.4G", "shortName": "2.4G"},
       {"name": "Battery Level", "title": "Show battery level", "shortName": "Batt"},
       {"name": "LMB Autoclick", "title": "LMB autoclicker for KC_CAPS", "shortName": "AutoLMB"},
-      {"name": "RMB Autoclick", "title": "RMB autoclicker for KC_CAPS", "shortName": "AutoRMB"}
+      {"name": "RMB Autoclick", "title": "RMB autoclicker for KC_CAPS", "shortName": "AutoRMB"},
+      {"name": "Snaptap", "title": "Toggles key-cancellation", "shortName": "SNAP"}
     ],
     "matrix": {"rows": 6, "cols" : 21},
     "layouts": {

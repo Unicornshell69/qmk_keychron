@@ -3,7 +3,7 @@
 //it can only autoclick one key at a time
 //original code here: https://getreuer.info/posts/keyboards/mouse-turbo-click/index.html
 
-#include "custom_turbo_behaviour/autoclick.h"
+#include "autoclick.h"
 
 
 
