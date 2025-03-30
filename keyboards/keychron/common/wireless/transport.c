@@ -38,8 +38,13 @@ extern wt_func_t       wireless_transport;
 
 static transport_t transport = TRANSPORT_NONE;
 
+/* modifed here so the nkro value is set to the correct default */
 #ifdef NKRO_ENABLE
-nkro_t nkro = {false, false};
+#   ifdef FORCE_NKRO
+    nkro_t nkro = {true, true};
+#   else
+    nkro_t nkro = {false, false};
+#   endif
 #endif
 
 static void transport_changed(transport_t new_transport);

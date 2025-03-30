@@ -41,6 +41,7 @@
 #    include "eeprom.h"
 #endif
 
+
 #define HOST_INDEX_MASK 0x0F
 #define HOST_P2P4G 0x10
 #define LED_ON 0x80
@@ -221,7 +222,7 @@ bool indicator_is_running(void) {
 #endif
         !!indicator_config.value;
 }
-
+/* battery animation, I think */
 static void indicator_timer_cb(void *arg) {
     if (*(indicator_type_t *)arg != INDICATOR_LAST) type = *(indicator_type_t *)arg;
 
@@ -532,7 +533,9 @@ void indicator_battery_low(void) {
 
             /*  Restore backligth state */
             if ((bat_low_ind_state & 0x0F) > (LOW_BAT_LED_BLINK_TIMES)) {
-#    if defined(NUM_LOCK_INDEX) || defined(CAPS_LOCK_INDEX) || defined(SCROLL_LOCK_INDEX) || defined(COMPOSE_LOCK_INDEX) || defined(KANA_LOCK_INDEX)
+//#    if defined(NUM_LOCK_INDEX) || defined(CAPS_LOCK_INDEX) || defined(SCROLL_LOCK_INDEX) || defined(COMPOSE_LOCK_INDEX) || defined(KANA_LOCK_INDEX) || defined(AUTOCLK_0_INDEX) || defined(AUTOCLK_1_INDEX)
+// this seems like a better validation than checking if any indicator exists
+#    if defined(LED_MATRIX_DRIVER_SHUTDOWN_ENABLE) || defined (RGB_MATRIX_DRIVER_SHUTDOWN_ENABLE)
                 if (LED_DRIVER_ALLOW_SHUTDOWN())
 #    endif
                     indicator_disable();
@@ -564,7 +567,7 @@ __attribute__((weak)) void os_state_indicate(void) {
 #    endif
 
 #    if defined(NUM_LOCK_INDEX)
-    if (host_keyboard_led_state().num_lock) {
+    if (!(host_keyboard_led_state().num_lock)) {
 #        if defined(DIM_NUM_LOCK)
         SET_LED_OFF(NUM_LOCK_INDEX);
 #        else
@@ -572,6 +575,7 @@ __attribute__((weak)) void os_state_indicate(void) {
 #        endif
     }
 #    endif
+
 #    if defined(CAPS_LOCK_INDEX)
     if (host_keyboard_led_state().caps_lock) {
 #        if defined(DIM_CAPS_LOCK)
@@ -597,6 +601,19 @@ __attribute__((weak)) void os_state_indicate(void) {
     }
 #    endif
 }
+
+//called when indicators are updated
+__attribute__((weak)) void user_state_indicate(void) {
+    //pass
+}
+
+//own custom code, call to update the lock indicators. It also calls user_indicators(void) for use in the keymap
+//it replaces os_state_indicate in the code, so I can call 2 functions at once
+void update_indicators_lights(void) {
+    user_state_indicate();
+    os_state_indicate();
+}
+
 
 bool LED_INDICATORS_KB(void) {
     if (get_transport() & TRANSPORT_WIRELESS) {
@@ -658,27 +675,26 @@ bool LED_INDICATORS_KB(void) {
                     SET_LED_OFF(bt_host_led_matrix_list[host_index - 1]);
             }
         } else
-            os_state_indicate();
-
+            update_indicators_lights();
     } else
-        os_state_indicate();
+        update_indicators_lights();
 
     if (!LED_INDICATORS_USER()) return true;
 
     return true;
 }
-
+/* UPDATE INDICATOR LIGHTS */
 bool led_update_kb(led_t led_state) {
     bool res = led_update_user(led_state);
     if (res) {
         led_update_ports(led_state);
-
+        /* if backlight is off [?] */
         if (!LED_DRIVER_IS_ENABLED() || (LED_DRIVER_IS_ENABLED() && LED_DRIVER_TIMEOUTED())) {
 #    if defined(LED_MATRIX_DRIVER_SHUTDOWN_ENABLE) || defined(RGB_MATRIX_DRIVER_SHUTDOWN_ENABLE)
             LED_DRIVER_EXIT_SHUTDOWN();
 #    endif
             SET_ALL_LED_OFF();
-            os_state_indicate();
+            update_indicators_lights();
             LED_DRIVER.flush();
 #    if defined(LED_MATRIX_DRIVER_SHUTDOWN_ENABLE) || defined(RGB_MATRIX_DRIVER_SHUTDOWN_ENABLE)
             if (LED_DRIVER_ALLOW_SHUTDOWN()) LED_DRIVER_SHUTDOWN();
@@ -690,20 +706,30 @@ bool led_update_kb(led_t led_state) {
 }
 
 void LED_NONE_INDICATORS_KB(void) {
-#    if defined(RGB_DISABLE_WHEN_USB_SUSPENDED)
-    if (get_transport() == TRANSPORT_USB && USB_DRIVER.state == USB_SUSPENDED) return;
-#    endif
-#    if defined(LED_DISABLE_WHEN_USB_SUSPENDED)
-    if (get_transport() == TRANSPORT_USB && USB_DRIVER.state == USB_SUSPENDED) return;
-#    endif
+// This is not needed, os_state_indicate already does this exact check
+// #    if defined(RGB_DISABLE_WHEN_USB_SUSPENDED)
+//     if (get_transport() == TRANSPORT_USB && USB_DRIVER.state == USB_SUSPENDED) return;
+// #    endif
+// #    if defined(LED_DISABLE_WHEN_USB_SUSPENDED)
+//     if (get_transport() == TRANSPORT_USB && USB_DRIVER.state == USB_SUSPENDED) return;
+// #    endif
 
-    os_state_indicate();
+    update_indicators_lights();
 }
 
+/* Makes the rgb matrix sleep when the mode = NONE and indicators are off */
 #    if defined(LED_MATRIX_DRIVER_SHUTDOWN_ENABLE) || defined(RGB_MATRIX_DRIVER_SHUTDOWN_ENABLE)
+//Make this return false when your custom indicators are  on
+__attribute__((weak)) bool rgb_matrix_driver_allow_shutdown_user(void) {
+    return true;
+}
+
 bool LED_DRIVER_ALLOW_SHUTDOWN(void) {
+
+    if (!rgb_matrix_driver_allow_shutdown_user()) return false;
+
 #        if defined(NUM_LOCK_INDEX)
-    if (host_keyboard_led_state().num_lock) return false;
+    if (!(host_keyboard_led_state().num_lock)) return false;
 #        endif
 #        if defined(CAPS_LOCK_INDEX) && !defined(DIM_CAPS_LOCK)
     if (host_keyboard_led_state().caps_lock) return false;

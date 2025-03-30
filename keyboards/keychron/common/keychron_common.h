@@ -29,6 +29,8 @@ enum {
     KC_TASK_VIEW,
     KC_FILE_EXPLORER,
     KC_SCREEN_SHOT,
+    //windows shortcut, shift+windows+s
+    KC_DRAW_SCREENSHOT,
     KC_CORTANA,
     KC_SIRI,
 #ifdef LK_WIRELESS_ENABLE
@@ -62,6 +64,7 @@ enum {
 #define KC_TASK KC_TASK_VIEW
 #define KC_FILE KC_FILE_EXPLORER
 #define KC_SNAP KC_SCREEN_SHOT
+#define KC_SWNS KC_DRAW_SCREENSHOT
 #define KC_CTANA KC_CORTANA
 
 typedef struct PACKED {
@@ -71,6 +74,7 @@ typedef struct PACKED {
 
 bool process_record_keychron_common(uint16_t keycode, keyrecord_t *record);
 void keychron_common_task(void);
+
 
 #ifdef ENCODER_ENABLE
 void encoder_cb_init(void);

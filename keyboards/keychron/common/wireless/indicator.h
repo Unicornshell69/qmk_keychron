@@ -80,7 +80,7 @@
 #endif
 
 typedef enum { INDICATOR_NONE, INDICATOR_OFF, INDICATOR_ON, INDICATOR_ON_OFF, INDICATOR_BLINK, INDICATOR_LAST } indicator_type_t;
-
+/* Type for blinking battery and shit indicators */
 typedef struct {
     indicator_type_t type;
     uint32_t         on_time;
@@ -107,6 +107,7 @@ void indicator_eeconfig_reload(void);
 bool indicator_is_enabled(void);
 bool indicator_is_running(void);
 
+
 #ifdef BAT_LOW_LED_PIN
 void indicator_battery_low_enable(bool enable);
 #endif
@@ -115,3 +116,7 @@ void indicator_battery_low_backlit_enable(bool enable);
 #endif
 
 void indicator_task(void);
+
+//added stuff
+void user_state_indicate(void);
+bool rgb_matrix_driver_allow_shutdown_user(void);

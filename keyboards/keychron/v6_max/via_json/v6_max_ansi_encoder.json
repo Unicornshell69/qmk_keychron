@@ -74,6 +74,7 @@
       {"name": "Task View", "title": "Task View in Windows", "shortName": "Task"},
       {"name": "File Explorer", "title": "File Explorer in Windows", "shortName": "File"},
       {"name": "Screen shot", "title": "Screenshot in macOS", "shortName": "SShot"},
+      {"name": "Draw Screen shot", "title": "Draw Screenshot area -> Shift+Win+S shortcut", "shortName": "SWinS"},
       {"name": "Cortana", "title": "Cortana in Windows", "shortName": "Cortana"},
       {"name": "Siri", "title": "Siri in macOS", "shortName": "Siri"},
       {"name": "Bluetooth Host 1", "title": "Bluetooth Host 1", "shortName": "BTH1"},

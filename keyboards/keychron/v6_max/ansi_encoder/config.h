@@ -51,4 +51,42 @@
 #    define RGB_MATRIX_KEYPRESSES
 #    define RGB_MATRIX_FRAMEBUFFER_EFFECTS
 
+    /* Custom Key Indications */
+#    define SNAPTAP_INDEX 17
+#    define AUTOCLK_0_INDEX 18
+#    define AUTOCLK_1_INDEX 19
+
 #endif
+
+
+/* Autoclicker Settings
+This does nothing unless the autoclicker functions are used in keymap.c */
+#define AUTOCLICK_PERIOD 30
+#define OVERRIDDEN_AUTOCLICK_KEY KC_CAPS
+            /* DEPRECATED */
+//#    define AUTOCLICK_KEY_0 KC_MS_BTN1
+//#    define AUTOCLICK_KEY_1 KC_MS_BTN2
+
+
+//via layer count
+#ifdef VIA_ENABLE
+#    define DYNAMIC_KEYMAP_LAYER_COUNT 6
+#endif
+
+/* mouse settings */
+#ifdef MOUSE_ENABLE
+#    define MK_KINETIC_SPEED //speed up slow down mode
+#    define MOUSEKEY_INTERVAL 10 //ms between movements
+#    define MOUSEKEY_MOVE_DELTA 20 //acceleration initial -> base
+#    define MOUSEKEY_INITIAL_SPEED 100 //speed at the beginning
+#    define MOUSEKEY_BASE_SPEED 2500 //speed after being accelerated
+#    define MOUSEKEY_ACCELERATED_SPEED 2000 //no fucking clue
+#    define MOUSEKEY_DECELERATED_SPEED 200 /*no fucking clue*/
+#endif
+
+
+
+/* nrko is ON by default now */
+//#ifdef NKRO_ENABLE
+//#   define FORCE_NKRO
+//#endif
