@@ -35,25 +35,6 @@ static uint8_t mac_keycode[4] = {KC_LOPT, KC_ROPT, KC_LCMD, KC_RCMD};
 
 static key_combination_t key_comb_list[5] = {{2, {KC_LWIN, KC_TAB}}, {2, {KC_LWIN, KC_E}}, {3, {KC_LSFT, KC_LCMD, KC_4}}, {3, {KC_LSFT, KC_LWIN, KC_S}}, {2, {KC_LWIN, KC_C}}};
 
-
-//#define AUTOCLICK_KEY_0 KC_1
-//#define AUTOCLICK_KEY_1 KC_2
-
-static bool autoclick_0_override_enabled = false;
-static bool autoclick_1_override_enabled = false;
-
-
-
-//returns override0 and override1 as booleans
-override_t keyboard_autoclick_override_state() {
-    override_t state;
-    state.override0 = autoclick_0_override_enabled;
-    state.override1 = autoclick_1_override_enabled;
-    return state;
-}
-
-//#undef AUTOCK_OVERRIDDEN_KEY
-
 bool process_record_keychron_common(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case KC_MCTRL:
