@@ -84,7 +84,8 @@
       {"name": "Battery Level", "title": "Show battery level", "shortName": "Batt"},
       {"name": "LMB Autoclick", "title": "LMB autoclicker for KC_CAPS", "shortName": "AutoLMB"},
       {"name": "RMB Autoclick", "title": "RMB autoclicker for KC_CAPS", "shortName": "AutoRMB"},
-      {"name": "Snaptap", "title": "Toggles key-cancellation", "shortName": "SNAP"}
+      {"name": "Snaptap", "title": "Toggles key-cancellation", "shortName": "SNAP"},
+      {"name": "AFK Toggle", "title": "Toggles AFK mode", "shortName": "AFK_MACRO"}
     ],
     "matrix": {"rows": 6, "cols" : 21},
     "layouts": {

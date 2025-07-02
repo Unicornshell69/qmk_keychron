@@ -1,4 +1,5 @@
-/* Copyright 2024 @ Keychron (https://www.keychron.com)
+/* Copyright 2024 @ Keychron (https://www.keychron.com) 
+ * -> Keymap & features by Unicornshell (https://github.com/Unicornshell69)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +17,12 @@
 
 #include QMK_KEYBOARD_H
 #include "keychron_common.h"
+
+#include "rgb_matrix.h"
+#include "host.h"
+
 #include "features/autoclick_behaviour/autoclick.h"
-
-
-enum {
-    AUTOLMB = NEW_SAFE_RANGE,
-    AUTORMB,
-    SNAP,
-};
+#include "features/chained_macros/chained_macro.h"
 
 //shorthand names for mouse keys
 #define MS_UP KC_MS_U
@@ -35,7 +34,41 @@ enum {
 #define MS_BTN1 KC_MS_BTN1
 #define MS_BTN2 KC_MS_BTN2
 
-//mac/win_mouse is a custom layer containing mouse controls. I think I only need one layer, but let's add one for mac and one for windows
+#define SET_LED_ON(idx) rgb_matrix_set_color(idx, 255, 255, 255)
+
+/*--------------------------------- CONFIG ---------------------------------*/
+/* Custom Key Indications */
+#define AFK_MACRO_INDEX 16
+#define SNAPTAP_INDEX   17
+#define AUTOCLK_0_INDEX 18
+#define AUTOCLK_1_INDEX 19
+
+static bool LMB_Autoclick_enabled = false;
+static bool RMB_Autoclick_enabled = false;
+static bool snaptap_enabled = false;
+static bool AFK_macro_enabled = false;
+
+//macro definition
+//NOTE: HAVING ONLY DELAYS OF 0ms WILL CREATE AN INFINITE LOOP. DON'T DO THAT
+const macro_action_t AFK_MACRO_array[] = {
+	{KC_W, true, 500},
+	{KC_W, false, 0},
+	{KC_A, true, 500},
+	{KC_A, false, 0},
+	{KC_S, true, 500},
+	{KC_S, false, 0},
+	{KC_D, true, 500},
+	{KC_D, false, 0}};
+DEFINE_LOOPING_MACRO(LOOPING_MACRO_AFK, AFK_MACRO_array, true);
+
+enum {
+    AUTOLMB = NEW_SAFE_RANGE,
+    AUTORMB,
+    SNAP,
+    AFK_MACRO,
+};
+
+//mac/win_mouse is a custom layer containing mouse controls. I should only need one layer, but let's add one for mac and one for windows
 enum layers {
     MAC_BASE,
     MAC_FN,
@@ -61,7 +94,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,            _______,  _______,  _______,  _______,  BAT_LVL,  NK_TOGG,  _______,  _______,  _______,  _______,              _______,              _______,            _______,  _______,  _______,
         _______,  _______,  _______,                                _______,                                _______,  _______,  _______,    _______,    _______,  _______,  _______,  _______,            _______,  _______),
     [WIN_BASE] = LAYOUT_ansi_109(
-        KC_ESC,   KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,     KC_MUTE,    KC_SWNS,  BAT_LVL,  KC_CALC,  _______,  SNAP   ,  AUTOLMB,  AUTORMB,
+        KC_ESC,   KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,     KC_MUTE,    KC_SWNS,  BAT_LVL,  KC_CALC,  AFK_MACRO,  SNAP,     AUTOLMB,  AUTORMB,
         KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,  KC_EQL,     KC_BSPC,    KC_INS,   KC_HOME,  KC_PGUP,  KC_NUM,   KC_PSLS,  KC_PAST,  KC_PMNS,
         KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,  KC_RBRC,    KC_BSLS,    KC_DEL,   KC_END,   KC_PGDN,  KC_P7,    KC_P8,    KC_P9,
         KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,                                   KC_P4,    KC_P5,    KC_P6,    KC_PPLS,
@@ -103,15 +136,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
 
 // clang-format on
 
-#include "rgb_matrix.h"
-#include "host.h"
-
-#define SET_LED_ON(idx) rgb_matrix_set_color(idx, 255, 255, 255)
-
-static bool LMB_Autoclick_enabled = false;
-static bool RMB_Autoclick_enabled = false;
-static bool snaptap_enabled = false;
-
+/*----------------------- Macro key light indicators -----------------------*/
 
 //called when a custom indicator changes value, updates the indicators when the backlight is off
 //I should probably add this to wireless/indicator.c
@@ -137,14 +162,22 @@ void user_state_indicate(void) {
         SET_LED_ON(SNAPTAP_INDEX);
     }
 #    endif
+#    if defined(AFK_MACRO_INDEX)
+    if (AFK_macro_enabled) {
+        SET_LED_ON(AFK_MACRO_INDEX);
+    }
+#    endif
 }
 
 //do not shutdown rgb matrix when any of those lights are ON
 bool rgb_matrix_driver_allow_shutdown_user(void) {
-    return !(LMB_Autoclick_enabled || RMB_Autoclick_enabled || snaptap_enabled);
+    return !(LMB_Autoclick_enabled || RMB_Autoclick_enabled || snaptap_enabled || AFK_macro_enabled);
 }
 
 
+/*--------------------------- Autoclickers logic ---------------------------*/
+
+//
 bool process_autoclick(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case AUTOLMB:
@@ -187,6 +220,8 @@ bool process_autoclick(uint16_t keycode, keyrecord_t *record) {
 }
 
 
+/*--------------------- Razer "snaptap" implementation ---------------------*/
+//describes snaptap key logic
 typedef struct {
     uint8_t keycode;
     bool pressed : 1;
@@ -243,24 +278,40 @@ bool process_snaptap_key(snaptap_t *key, keyrecord_t *record, snaptap_t *opposit
 
 //NOTE: go to tmk_core > protocol > host.c > host_keyboard_leds to change default led state when disconnected
 
-
+/*------------------------------- Main loop -------------------------------*/
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (keycode == SNAP) {
-        if (record->event.pressed) {
-            snaptap_enabled = !snaptap_enabled;
-            update_led_status_user();
-        }
-        return false;
-    } else if (snaptap_enabled) {
-        if (keycode == AKey.keycode) {
-            return process_snaptap_key(&AKey, record, &DKey);
-        } else if (keycode == DKey.keycode) {
-            return process_snaptap_key(&DKey, record, &AKey);
-        } else if (keycode == WKey.keycode) {
-            return process_snaptap_key(&WKey, record, &SKey);
-        } else if (keycode == SKey.keycode){
-            return process_snaptap_key(&SKey, record, &WKey);
-        }
+    switch (keycode) {
+        case SNAP:
+            if (record->event.pressed) {
+                snaptap_enabled = !snaptap_enabled;
+                update_led_status_user();
+            }
+            return false;
+        case AFK_MACRO:
+            if (record->event.pressed) {
+                AFK_macro_enabled = !AFK_macro_enabled;
+                update_led_status_user();
+                if (AFK_macro_enabled) {
+                    start_macro(&LOOPING_MACRO_AFK);
+                } else {
+                    stop_macro(&LOOPING_MACRO_AFK);
+                }
+            }
+            return false;
+
+        default:
+            //process snaptap keys
+            if (snaptap_enabled) {
+                if (keycode == AKey.keycode) {
+                    return process_snaptap_key(&AKey, record, &DKey);
+                } else if (keycode == DKey.keycode) {
+                    return process_snaptap_key(&DKey, record, &AKey);
+                } else if (keycode == WKey.keycode) {
+                    return process_snaptap_key(&WKey, record, &SKey);
+                } else if (keycode == SKey.keycode){
+                    return process_snaptap_key(&SKey, record, &WKey);
+                }
+            }
     }
 
     if (!process_autoclick(keycode, record)) {
@@ -270,7 +321,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_record_keychron_common(keycode, record)) {
         return false;
     }
-
     return true;
 }
 

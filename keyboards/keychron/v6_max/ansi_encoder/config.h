@@ -50,12 +50,6 @@
 
 #    define RGB_MATRIX_KEYPRESSES
 #    define RGB_MATRIX_FRAMEBUFFER_EFFECTS
-
-    /* Custom Key Indications */
-#    define SNAPTAP_INDEX 17
-#    define AUTOCLK_0_INDEX 18
-#    define AUTOCLK_1_INDEX 19
-
 #endif
 
 
@@ -74,19 +68,16 @@ This does nothing unless the autoclicker functions are used in keymap.c */
 #endif
 
 /* mouse settings */
-#ifdef MOUSE_ENABLE
-#    define MK_KINETIC_SPEED //speed up slow down mode
-#    define MOUSEKEY_INTERVAL 10 //ms between movements
-#    define MOUSEKEY_MOVE_DELTA 20 //acceleration initial -> base
-#    define MOUSEKEY_INITIAL_SPEED 100 //speed at the beginning
-#    define MOUSEKEY_BASE_SPEED 2500 //speed after being accelerated
-#    define MOUSEKEY_ACCELERATED_SPEED 2000 //no fucking clue
-#    define MOUSEKEY_DECELERATED_SPEED 200 /*no fucking clue*/
+#ifdef MOUSE_ENABLE  
+#    define MOUSEKEY_INTERVAL    4
+#    define MOUSEKEY_MOVE_DELTA  8
+#    define MOUSEKEY_TIME_TO_MAX 1
+#    define MOUSEKEY_MAX_SPEED   15
 #endif
 
 
 
 /* nrko is ON by default now */
-//#ifdef NKRO_ENABLE
-//#   define FORCE_NKRO
-//#endif
+// #ifdef NKRO_ENABLE
+// #   define FORCE_NKRO
+// #endif
